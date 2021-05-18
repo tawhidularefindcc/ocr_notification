@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 class NotificationPage extends StatefulWidget {
 
@@ -16,39 +14,70 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   String selectedNotificationPayload;
+  
+ _showNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+        'channel id', 'channel name', 'channel description',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false);
+    
+    const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+    
+    var scheduleTime = new DateTime.now().add(new Duration(seconds: 5));
+    
+   await flutterLocalNotificationsPlugin.schedule(
+      1, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', scheduleTime, platformChannelSpecifics, payload: 'anything');
+  }
 
-  notification() async {
+  // notification() async {
 
+  //   const AndroidNotificationDetails androidPlatformChannelSpecifics =
+  //     AndroidNotificationDetails(
+  //       'channel id', 'channel name', 'channel description',
+  //       importance: Importance.max,
+  //       priority: Priority.high,
+  //       showWhen: false);
+
+  //   const NotificationDetails platformChannelSpecifics =
+  //     NotificationDetails(android: androidPlatformChannelSpecifics);
+
+  //   var scheduleTime = new tz.TZDateTime.now(tz.local).add(new Duration(seconds: 5));
+  //   //Execute Notification  
+  //   await flutterLocalNotificationsPlugin.zonedSchedule(
+  //   1,
+  //   'scheduled title',
+  //   this.widget.value,
+  //   scheduleTime,
+  //   platformChannelSpecifics,
+  //   androidAllowWhileIdle: true,
+  //   uiLocalNotificationDateInterpretation:
+  //       UILocalNotificationDateInterpretation.absoluteTime);
+  //   await flutterLocalNotificationsPlugin.show(0, 'Notification title', this.widget.value, platformChannelSpecifics, payload: 'item x');
+  // }
+
+  @override
+  void initState() {
     const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('app_icon');
 
     final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
     );
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+    
+    this.flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    this.flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onSelectNotification: (String payload) async {
         if(payload != null){
           debugPrint('notification payload: $payload');
         }
         selectedNotificationPayload = payload;
     });
-
-    //Execute Notification  
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-    0,
-    'scheduled title',
-    'scheduled body',
-    tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
-    const NotificationDetails(
-        android: AndroidNotificationDetails('your channel id',
-            'your channel name', 'your channel description')),
-    androidAllowWhileIdle: true,
-    uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime);
-    await flutterLocalNotificationsPlugin.show(0, 'Notification title', 'body', null, payload: 'item x');
+    super.initState();
   }
 
   @override
@@ -70,10 +99,9 @@ class _NotificationPageState extends State<NotificationPage> {
               _column("Days to take", "${widget.value.split(' ')[2]}"),
             ],
           ),
+          SizedBox(height: 10.0),
           ElevatedButton(
-            onPressed: (){
-              notification();
-            }, 
+            onPressed: _showNotification, 
             child: Container(
               height: 60,
               width: 200,
@@ -97,7 +125,7 @@ class _NotificationPageState extends State<NotificationPage> {
           height: 50,
           width: 80,
           color: Colors.white,
-          child: Text(body, style: TextStyle(color: Colors.black)),
+          child: Center(child: Text(body, style: TextStyle(color: Colors.black))),
         ),
       ],
     );
