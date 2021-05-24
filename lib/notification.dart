@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 
 
 class NotificationPage extends StatefulWidget {
@@ -18,6 +20,11 @@ class _NotificationPageState extends State<NotificationPage> {
   String selectedNotificationPayload;
   
  _showNotification() async {
+
+    WidgetsFlutterBinding.ensureInitialized();
+
+    await _configureLocalTimeZone();
+
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
         'channel id', 'channel name', 'channel description',
@@ -28,37 +35,29 @@ class _NotificationPageState extends State<NotificationPage> {
     const NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
     
-    var scheduleTime = new DateTime.now().add(new Duration(seconds: 5));
-    
    await flutterLocalNotificationsPlugin.schedule(
-      1, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', scheduleTime, platformChannelSpecifics, payload: 'anything');
+      1, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', _nextInstanceOfTenAM(10, new Duration(seconds: 1)), platformChannelSpecifics, payload: 'anything');
+
+    await flutterLocalNotificationsPlugin.schedule(
+      2, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', _nextInstanceOfTenAM(1, new Duration(seconds: 1)), platformChannelSpecifics, payload: 'anything');
+  
   }
 
-  // notification() async {
+  tz.TZDateTime _nextInstanceOfTenAM(int hour, Duration duration) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour);
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(duration);
+    }
+    return scheduledDate;
+  }
 
-  //   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-  //     AndroidNotificationDetails(
-  //       'channel id', 'channel name', 'channel description',
-  //       importance: Importance.max,
-  //       priority: Priority.high,
-  //       showWhen: false);
-
-  //   const NotificationDetails platformChannelSpecifics =
-  //     NotificationDetails(android: androidPlatformChannelSpecifics);
-
-  //   var scheduleTime = new tz.TZDateTime.now(tz.local).add(new Duration(seconds: 5));
-  //   //Execute Notification  
-  //   await flutterLocalNotificationsPlugin.zonedSchedule(
-  //   1,
-  //   'scheduled title',
-  //   this.widget.value,
-  //   scheduleTime,
-  //   platformChannelSpecifics,
-  //   androidAllowWhileIdle: true,
-  //   uiLocalNotificationDateInterpretation:
-  //       UILocalNotificationDateInterpretation.absoluteTime);
-  //   await flutterLocalNotificationsPlugin.show(0, 'Notification title', this.widget.value, platformChannelSpecifics, payload: 'item x');
-  // }
+  Future<void> _configureLocalTimeZone() async {
+  tz.initializeTimeZones();
+  final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+  tz.setLocalLocation(tz.getLocation(timeZoneName));
+}
 
   @override
   void initState() {
@@ -99,9 +98,9 @@ class _NotificationPageState extends State<NotificationPage> {
               _column("Days to take", "${widget.value.split(' ')[2]}"),
             ],
           ),
-          SizedBox(height: 10.0),
+          SizedBox(height: 30.0),
           ElevatedButton(
-            onPressed: _showNotification, 
+            onPressed: _showNotification,
             child: Container(
               height: 60,
               width: 200,
@@ -123,8 +122,16 @@ class _NotificationPageState extends State<NotificationPage> {
         SizedBox(height: 5.0),
         Container(
           height: 50,
-          width: 80,
-          color: Colors.white,
+          width: 100,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(color: Colors.black),
+              left: BorderSide(color: Colors.black),
+              right: BorderSide(color: Colors.black),
+              bottom: BorderSide(color: Colors.black),
+            ),
+          ),
           child: Center(child: Text(body, style: TextStyle(color: Colors.black))),
         ),
       ],

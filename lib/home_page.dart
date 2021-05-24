@@ -110,12 +110,14 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        captureImageWithCamera();
-                      },
-                      child: Text(
-                        "Capture Image",
-                        style: TextStyle(color: Colors.white),
+                      onPressed: captureImageWithCamera,
+                      child: Container(
+                        height: 60,
+                        width: 200,
+                        child: Center(child: Text('Capture Image')),
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.orange),
                       ),
                     ),
                   ],
