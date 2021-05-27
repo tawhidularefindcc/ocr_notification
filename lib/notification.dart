@@ -36,10 +36,10 @@ class _NotificationPageState extends State<NotificationPage> {
       NotificationDetails(android: androidPlatformChannelSpecifics);
     
    await flutterLocalNotificationsPlugin.schedule(
-      1, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', _nextInstanceOfTenAM(10, new Duration(seconds: 1)), platformChannelSpecifics, payload: 'anything');
+      1, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', _nextInstanceOfTenAM(1, new Duration(seconds: 1)), platformChannelSpecifics, payload: 'anything');
 
     await flutterLocalNotificationsPlugin.schedule(
-      2, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', _nextInstanceOfTenAM(1, new Duration(seconds: 1)), platformChannelSpecifics, payload: 'anything');
+      2, 'Time to take medicine', '${widget.value.split(' ')[0]} has to be taken ${widget.value.split(' ')[1]} for ${widget.value.split(' ')[2]}', _nextInstanceOfTenAM(2, new Duration(seconds: 1)), platformChannelSpecifics, payload: 'anything');
   
   }
 
